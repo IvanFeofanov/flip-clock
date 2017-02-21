@@ -24,9 +24,11 @@ void Clock::setup()
   buttonPlus_.attachClick(plusCallback);
   buttonCancel_.attachClick(cancelCallback);
   
-  // alarm clock pot
-  
+  // alarm clock potentiometer
+  pinMode(POT_ALARM_CLOCK_PIN, INPUT);
   // light sensor
+  pinMode(LIGHT_SENSOR_PIN, INPUT);
+  
   // indicator
   // RTC
   internalRtc_ = InternalRtc();
@@ -43,16 +45,21 @@ void Clock::loop()
   buttonPlus_.tick();
   buttonCancel_.tick();
   
-  //print time
-  // alarm clock pot
+  // read alarm clock time
+  uint16_t value = analogRead(POT_ALARM_CLOCK_PIN);
+  uint8_t hour = value / (1023 / 24);
+  uint8_t minute = (value % (1023 / 24)) * 60 / (1023 / 24);
+  Serial.print(hour);
+  Serial.print(" : ");
+  Serial.println(minute);
   
   // light sensor
   // indicator
   // RTC
   internalRtc_.tick();
-  Serial.print(internalRtc_.hour());
-  Serial.print(" : ");
-  Serial.println(internalRtc_.minute());
+//  Serial.print(internalRtc_.hour());
+//  Serial.print(" : ");
+//  Serial.println(internalRtc_.minute());
   
   // player
   
