@@ -3,7 +3,11 @@
 
 #include <Arduino.h>
 
+// debug
+#define LED_PIN (13)
+
 // buttons
+#define BUTTON_ACTIVE          (false)
 #define BUTTON_SELECT_PIN      (2)
 #define BUTTON_PLUS_PIN        (4)
 #define BUTTON_CANCEL_PIN      (7)

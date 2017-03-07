@@ -13,12 +13,14 @@ void Clock::setup()
 {
   //serial
   Serial.begin(9600);
-  pinMode(13, OUTPUT);
+  
+  //debug
+  pinMode(LED_PIN, OUTPUT);
     
   //buttons
-  buttonSelect_ = OneButton(BUTTON_SELECT_PIN, true);
-  buttonPlus_   = OneButton(BUTTON_PLUS_PIN, true);
-  buttonCancel_ = OneButton(BUTTON_CANCEL_PIN, true);
+  buttonSelect_ = OneButton(BUTTON_SELECT_PIN, BUTTON_ACTIVE);
+  buttonPlus_   = OneButton(BUTTON_PLUS_PIN, BUTTON_ACTIVE);
+  buttonCancel_ = OneButton(BUTTON_CANCEL_PIN, BUTTON_ACTIVE);
   
   buttonSelect_.attachClick(selectCallback);
   buttonPlus_.attachClick(plusCallback);
@@ -30,8 +32,10 @@ void Clock::setup()
   pinMode(LIGHT_SENSOR_PIN, INPUT);
   
   // indicator
+  
   // RTC
   internalRtc_ = InternalRtc();
+  
   // player
   
   state_ = STATE_DEFAULT;
@@ -49,11 +53,12 @@ void Clock::loop()
   uint16_t value = analogRead(POT_ALARM_CLOCK_PIN);
   uint8_t hour = value / (1023 / 24);
   uint8_t minute = (value % (1023 / 24)) * 60 / (1023 / 24);
-  Serial.print(hour);
+  Serial.print(internalRtc_.hour());
   Serial.print(" : ");
-  Serial.println(minute);
+  Serial.println(internalRtc_.minute());
   
   // light sensor
+  // backlight
   // indicator
   // RTC
   internalRtc_.tick();
@@ -94,7 +99,5 @@ void Clock::plusCallback()
 void Clock::cancelCallback()
 {
   //disable alarm
-  if(isAlarm_){
-    isAlarm_ = false;
-  }
+  isAlarm_ = false;
 }
