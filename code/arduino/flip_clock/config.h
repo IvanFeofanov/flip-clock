@@ -7,13 +7,12 @@
 #define LED_PIN (13)
 
 // buttons
-#define BUTTON_ACTIVE          (false)
-#define BUTTON_SELECT_PIN      (2)
-#define BUTTON_PLUS_PIN        (4)
-#define BUTTON_CANCEL_PIN      (7)
+#define BUTTON_ACTIVE_LOW      (LOW) // состояние на пине когда кнопка не нажата
+#define MODE_BUTTON_PIN        (2)
+#define SUPER_BUTTON_PIN       (4)
 
 // potentiometr
-#define POT_ALARM_CLOCK_PIN    (A0)
+#define POT_ALARM_CLOCK_PIN    (A0)  // аналоговый пин к которому подключен потенциометр настройки будильника
 
 // backlight
 #define LIGHT_SENSOR_PIN       (A1)

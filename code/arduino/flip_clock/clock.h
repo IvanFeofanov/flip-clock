@@ -14,14 +14,12 @@ class Clock
   static void loop();
   
   private:
-  static void selectCallback();
-  static void plusCallback();
-  static void cancelCallback();
+  static void modeCallback();
+  static void superCallback();
   
   // buttons
-  static OneButton buttonSelect_;
-  static OneButton buttonPlus_;
-  static OneButton buttonCancel_;
+  static OneButton modeButton_;
+  static OneButton superButton_;
   
   // alarm clock pot
   // light sensor

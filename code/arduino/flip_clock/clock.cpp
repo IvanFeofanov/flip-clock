@@ -1,8 +1,7 @@
 #include "clock.h"
 
-OneButton Clock::buttonSelect_;
-OneButton Clock::buttonPlus_;
-OneButton Clock::buttonCancel_;
+OneButton Clock::modeButton_;
+OneButton Clock::superButton_;
 
 InternalRtc Clock::internalRtc_;
 
@@ -18,13 +17,11 @@ void Clock::setup()
   pinMode(LED_PIN, OUTPUT);
     
   //buttons
-  buttonSelect_ = OneButton(BUTTON_SELECT_PIN, BUTTON_ACTIVE);
-  buttonPlus_   = OneButton(BUTTON_PLUS_PIN, BUTTON_ACTIVE);
-  buttonCancel_ = OneButton(BUTTON_CANCEL_PIN, BUTTON_ACTIVE);
+  modeButton_   = OneButton(MODE_BUTTON_PIN, BUTTON_ACTIVE_LOW);
+  superButton_  = OneButton(SUPER_BUTTON_PIN, BUTTON_ACTIVE_LOW);
   
-  buttonSelect_.attachClick(selectCallback);
-  buttonPlus_.attachClick(plusCallback);
-  buttonCancel_.attachClick(cancelCallback);
+  modeButton_.attachClick(modeCallback);
+  superButton_.attachClick(superCallback);
   
   // alarm clock potentiometer
   pinMode(POT_ALARM_CLOCK_PIN, INPUT);
@@ -44,10 +41,9 @@ void Clock::setup()
 
 void Clock::loop()
 {
-  //buttons
-  buttonSelect_.tick();
-  buttonPlus_.tick();
-  buttonCancel_.tick();
+  // buttons
+  modeButton_.tick();
+  superButton_.tick();
   
   // read alarm clock time
   uint16_t value = analogRead(POT_ALARM_CLOCK_PIN);
@@ -62,15 +58,12 @@ void Clock::loop()
   // indicator
   // RTC
   internalRtc_.tick();
-//  Serial.print(internalRtc_.hour());
-//  Serial.print(" : ");
-//  Serial.println(internalRtc_.minute());
   
   // player
   
 }
 
-void Clock::selectCallback()
+void Clock::modeCallback()
 {
   if(state_ >= STATE_SET_MIN){
     state_ = STATE_DEFAULT;
@@ -79,7 +72,7 @@ void Clock::selectCallback()
   }
 }
 
-void Clock::plusCallback()
+void Clock::superCallback()
 {
   switch(state_)
   {
@@ -92,12 +85,7 @@ void Clock::plusCallback()
     break;
     
     default:
+    isAlarm_ = false;  // disable alarm
     break;
   }
-}
-
-void Clock::cancelCallback()
-{
-  //disable alarm
-  isAlarm_ = false;
 }
