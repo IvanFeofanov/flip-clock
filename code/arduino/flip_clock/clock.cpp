@@ -3,10 +3,14 @@
 OneButton Clock::modeButton_;
 OneButton Clock::superButton_;
 
-InternalRtc Clock::internalRtc_;
+InternalRtc Clock::rtc_;
+
+bool Clock::isAlarmClockEnable_;
+bool Clock::isWakeUp_;
+uint8_t Clock::wakeUpTimeHour_;
+uint8_t Clock::wakeUpTimeMinute_;
 
 uint8_t Clock::state_;
-bool Clock::isAlarm_;
 
 void Clock::setup()
 {
@@ -18,25 +22,31 @@ void Clock::setup()
     
   //buttons
   modeButton_   = OneButton(MODE_BUTTON_PIN, BUTTON_ACTIVE_LOW);
-  superButton_  = OneButton(SUPER_BUTTON_PIN, BUTTON_ACTIVE_LOW);
-  
   modeButton_.attachClick(modeCallback);
+  superButton_  = OneButton(SUPER_BUTTON_PIN, BUTTON_ACTIVE_LOW);
   superButton_.attachClick(superCallback);
   
-  // alarm clock potentiometer
-  pinMode(POT_ALARM_CLOCK_PIN, INPUT);
-  // light sensor
-  pinMode(LIGHT_SENSOR_PIN, INPUT);
+  // alarm clock 
+  isAlarmClockEnable_ = false; 
+  isWakeUp_           = false;
+  wakeUpTimeHour_     = 0;
+  wakeUpTimeMinute_   = 0;
+  pinMode(POT_ALARM_CLOCK_PIN, INPUT); // potentiometer
+  
+  // backlight
+  pinMode(LIGHT_SENSOR_PIN, INPUT);     // light sensor
+  pinMode(BACKLIGHT_HOUR_PIN, OUTPUT);
+  pinMode(BACKLIGHT_MINUTE_PIN, OUTPUT);
+  pinMode(BACKLIGHT_ALARM_PIN, OUTPUT);
   
   // indicator
   
   // RTC
-  internalRtc_ = InternalRtc();
+  rtc_ = InternalRtc();
   
-  // player
+  // alarm signal
   
   state_ = STATE_DEFAULT;
-  isAlarm_ = false;
 }
 
 void Clock::loop()
@@ -45,22 +55,60 @@ void Clock::loop()
   modeButton_.tick();
   superButton_.tick();
   
-  // read alarm clock time
-  uint16_t value = analogRead(POT_ALARM_CLOCK_PIN);
-  uint8_t hour = value / (1023 / 24);
-  uint8_t minute = (value % (1023 / 24)) * 60 / (1023 / 24);
-  Serial.print(internalRtc_.hour());
-  Serial.print(" : ");
-  Serial.println(internalRtc_.minute());
+  // alarm clock
+  alarmClockTick();
+  printWakeUpTime();
   
   // light sensor
   // backlight
   // indicator
+  
   // RTC
-  internalRtc_.tick();
+  rtc_.tick();
+  printCurrentTime();
   
-  // player
+  // alarm signal
   
+}
+
+void Clock::alarmClockTick()
+{
+  // read alarm clock time
+  uint16_t value = analogRead(POT_ALARM_CLOCK_PIN);
+  wakeUpTimeHour_ = value / (1023 / 24);
+  wakeUpTimeMinute_  = (value % (1023 / 24)) * 60 / (1023 / 24);
+}
+
+void Clock::printCurrentTime()
+{
+  static uint8_t hour   = 0;
+  static uint8_t minute = 0;
+  
+  if(hour != rtc_.hour() || minute != rtc_.minute()){
+    hour = rtc_.hour();
+    minute = rtc_.minute();
+    
+    Serial.print("Current time: ");
+    Serial.print(rtc_.hour());
+    Serial.print(" : ");
+    Serial.println(rtc_.minute());
+  }
+}
+
+void Clock::printWakeUpTime()
+{
+  static uint8_t hour = 0;
+  static uint8_t minute = 0;
+  
+  if(abs((hour * 60 + minute) - (wakeUpTimeHour_ * 60 + wakeUpTimeMinute_)) > WAKEUP_EPSILON){
+    hour   = wakeUpTimeHour_;
+    minute = wakeUpTimeMinute_;
+    
+    Serial.print("WakeUp time: ");
+    Serial.print(wakeUpTimeHour_);
+    Serial.print(" : ");
+    Serial.println(wakeUpTimeMinute_);
+  }
 }
 
 void Clock::modeCallback()
@@ -77,15 +125,15 @@ void Clock::superCallback()
   switch(state_)
   {
     case STATE_SET_HOUR:
-    internalRtc_.setHour(internalRtc_.hour() + 1);
+    rtc_.setHour(rtc_.hour() + 1);
     break;
     
     case STATE_SET_MIN:
-    internalRtc_.setMinute(internalRtc_.minute() + 1);
+    rtc_.setMinute(rtc_.minute() + 1);
     break;
     
     default:
-    isAlarm_ = false;  // disable alarm
+    isWakeUp_ = false;
     break;
   }
 }

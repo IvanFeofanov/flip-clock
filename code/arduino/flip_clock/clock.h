@@ -7,6 +7,7 @@
 #include "./OneButton.h"
 #include "./internal_rtc.h"
 
+
 class Clock
 {
   public:
@@ -16,6 +17,9 @@ class Clock
   private:
   static void modeCallback();
   static void superCallback();
+  static void alarmClockTick();
+  static void printCurrentTime();
+  static void printWakeUpTime();
   
   // buttons
   static OneButton modeButton_;
@@ -25,8 +29,13 @@ class Clock
   // light sensor
   // indicator
   // RTC
-  static InternalRtc internalRtc_;
+  static InternalRtc rtc_;
   // player
+  
+  static bool isAlarmClockEnable_;
+  static bool isWakeUp_;
+  static uint8_t wakeUpTimeHour_;
+  static uint8_t wakeUpTimeMinute_;
   
   static uint8_t state_;
   enum{
@@ -34,8 +43,6 @@ class Clock
     STATE_SET_HOUR,
     STATE_SET_MIN
   };
-  
-  static bool isAlarm_;
 };
 
 

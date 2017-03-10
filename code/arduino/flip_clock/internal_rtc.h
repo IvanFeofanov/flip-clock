@@ -3,7 +3,14 @@
 
 #include <stdint.h>
 
-class InternalRtc
+#include "rtc.h"
+
+/*
+ * Класс часов реального времени вычисляющий время без использования внешних микросхем,
+ * по средствам функции millis()
+ */
+
+class InternalRtc : public Rtc
 {
   public:
   InternalRtc();
