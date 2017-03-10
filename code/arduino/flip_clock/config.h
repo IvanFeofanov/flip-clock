@@ -12,8 +12,11 @@
 #define SUPER_BUTTON_PIN       (4)
 
 // potentiometr
-#define POT_ALARM_CLOCK_PIN    (A0)  // аналоговый пин к которому подключен потенциометр настройки будильника
+#define POT_ALARM_CLOCK_PIN    (A0) // аналоговый пин к которому подключен потенциометр настройки будильника
 #define WAKEUP_EPSILON         (5)  // точность(в минутах) с которой устанавливается время подъема
+
+#define WAKEUP_SIGNAL_PIN      (9)  // цифровой пин к которому подключен динамик
+
 // backlight
 #define LIGHT_SENSOR_PIN       (A1)
 #define LIGHT_SENSOR_DIS_THRES (125) // значение на датчике освещенности, при котором отключается подсветка

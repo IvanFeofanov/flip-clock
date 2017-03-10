@@ -4,6 +4,7 @@ OneButton Clock::modeButton_;
 OneButton Clock::superButton_;
 
 InternalRtc Clock::rtc_;
+Beeper      Clock::alarmSignal_;
 
 bool Clock::isAlarmClockEnable_;
 bool Clock::isWakeUp_;
@@ -32,7 +33,7 @@ void Clock::setup()
   wakeUpTimeHour_     = 0;
   wakeUpTimeMinute_   = 0;
   pinMode(POT_ALARM_CLOCK_PIN, INPUT); // potentiometer
-  
+
   // backlight
   pinMode(LIGHT_SENSOR_PIN, INPUT);     // light sensor
   pinMode(BACKLIGHT_HOUR_PIN, OUTPUT);
@@ -45,6 +46,7 @@ void Clock::setup()
   rtc_ = InternalRtc();
   
   // alarm signal
+  alarmSignal_ = Beeper(9);
   
   state_ = STATE_DEFAULT;
 }
@@ -68,6 +70,8 @@ void Clock::loop()
   printCurrentTime();
   
   // alarm signal
+  alarmSignal_.play(isWakeUp_);
+  
   
 }
 
@@ -77,6 +81,11 @@ void Clock::alarmClockTick()
   uint16_t value = analogRead(POT_ALARM_CLOCK_PIN);
   wakeUpTimeHour_ = value / (1023 / 24);
   wakeUpTimeMinute_  = (value % (1023 / 24)) * 60 / (1023 / 24);
+}
+
+void Clock::backlightProcess()
+{
+ 
 }
 
 void Clock::printCurrentTime()

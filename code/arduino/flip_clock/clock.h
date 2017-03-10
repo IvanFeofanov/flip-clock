@@ -4,9 +4,9 @@
 #include <Arduino.h>
 
 #include "config.h"
-#include "./OneButton.h"
-#include "./internal_rtc.h"
-
+#include "OneButton.h"
+#include "internal_rtc.h"
+#include "beeper.h"
 
 class Clock
 {
@@ -18,6 +18,7 @@ class Clock
   static void modeCallback();
   static void superCallback();
   static void alarmClockTick();
+  static void backlightProcess();
   static void printCurrentTime();
   static void printWakeUpTime();
   
@@ -28,9 +29,9 @@ class Clock
   // alarm clock pot
   // light sensor
   // indicator
-  // RTC
-  static InternalRtc rtc_;
-  // player
+  
+  static InternalRtc rtc_; // RTC
+  static Beeper alarmSignal_;
   
   static bool isAlarmClockEnable_;
   static bool isWakeUp_;
