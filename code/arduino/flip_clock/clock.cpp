@@ -66,9 +66,10 @@ void Clock::loop()
   superButton_.tick();
   
   // light sensor
+  bool isLight = getIsLight();
   
   // backlight
-  backlightProcess(true);
+  backlightProcess(isLight);
 
   // indicator
   
@@ -78,7 +79,7 @@ void Clock::loop()
   
   // alarm clock
   alarmClockTick();
-  printWakeUpTime();
+//  printWakeUpTime();
   
   // alarm signal
   alarmSignal_.play(isWakeUp_);  
@@ -90,6 +91,21 @@ void Clock::alarmClockTick()
   uint16_t value = analogRead(POT_ALARM_CLOCK_PIN);
   wakeUpTimeHour_ = value / (1023 / 24);
   wakeUpTimeMinute_  = (value % (1023 / 24)) * 60 / (1023 / 24);
+}
+
+bool Clock::getIsLight()
+{
+  static bool isLight = false;
+  
+  uint16_t value = analogRead(LIGHT_SENSOR_PIN);
+  if(value >= LIGHT_SENSOR_DIS_THRES){
+    isLight = true;
+  }
+  if(value <= LIGHT_SENSOR_EN_THRES){
+    isLight = false;
+  }
+  
+  return isLight;
 }
 
 void Clock::backlightProcess(bool isLight)

@@ -19,6 +19,7 @@ class Clock
   static void modeCallback();
   static void superCallback();
   static void alarmClockTick();
+  static bool getIsLight();
   static void backlightProcess(bool isLight);
   static void printCurrentTime();
   static void printWakeUpTime();

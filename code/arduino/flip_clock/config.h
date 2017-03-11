@@ -20,8 +20,8 @@
 
 // backlight
 #define LIGHT_SENSOR_PIN           (A1)
-#define LIGHT_SENSOR_DIS_THRES     (125) // значение на датчике освещенности, при котором отключается подсветка
-#define LIGHT_SENSOR_EN_THRES      (50)  // 
+#define LIGHT_SENSOR_DIS_THRES     (512) // значение на датчике освещенности, при котором отключается подсветка
+#define LIGHT_SENSOR_EN_THRES      (255)  // значение на датчике освещенности, при котором включается подсветка
 #define BACKLIGHT_HOUR_PIN         (3)
 #define BACKLIGHT_MINUTE_PIN       (5)
 #define BACKLIGHT_ALARM_CLOCK_PIN  (6)
