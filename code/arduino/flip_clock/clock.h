@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "OneButton.h"
+#include "one_led.h"
 #include "internal_rtc.h"
 #include "beeper.h"
 
@@ -18,7 +19,7 @@ class Clock
   static void modeCallback();
   static void superCallback();
   static void alarmClockTick();
-  static void backlightProcess();
+  static void backlightProcess(bool isLight);
   static void printCurrentTime();
   static void printWakeUpTime();
   
@@ -26,13 +27,22 @@ class Clock
   static OneButton modeButton_;
   static OneButton superButton_;
   
-  // alarm clock pot
   // light sensor
+  
+  // backlight
+  static OneLed hourLed_;
+  static OneLed minuteLed_;
+  static OneLed alarmClockLed_;
+  
   // indicator
   
-  static InternalRtc rtc_; // RTC
+  // RTC
+  static InternalRtc rtc_; 
+  
+  // alarm signal
   static Beeper alarmSignal_;
   
+  // alarm clock
   static bool isAlarmClockEnable_;
   static bool isWakeUp_;
   static uint8_t wakeUpTimeHour_;

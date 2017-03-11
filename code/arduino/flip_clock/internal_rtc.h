@@ -12,7 +12,7 @@
 
 class InternalRtc : public Rtc
 {
-  public:
+public:
   InternalRtc();
   void tick();
   inline uint8_t hour() { return hour_; }
@@ -20,7 +20,7 @@ class InternalRtc : public Rtc
   void setHour(uint8_t hour);
   void setMinute(uint8_t minute);
   
-  private:
+private:
   uint32_t msec_;
   uint8_t  hour_;
   uint8_t  minute_;

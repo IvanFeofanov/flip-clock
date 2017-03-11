@@ -3,6 +3,10 @@
 OneButton Clock::modeButton_;
 OneButton Clock::superButton_;
 
+OneLed Clock::hourLed_;
+OneLed Clock::minuteLed_;
+OneLed Clock::alarmClockLed_;
+
 InternalRtc Clock::rtc_;
 Beeper      Clock::alarmSignal_;
 
@@ -27,26 +31,30 @@ void Clock::setup()
   superButton_  = OneButton(SUPER_BUTTON_PIN, BUTTON_ACTIVE_LOW);
   superButton_.attachClick(superCallback);
   
-  // alarm clock 
-  isAlarmClockEnable_ = false; 
-  isWakeUp_           = false;
-  wakeUpTimeHour_     = 0;
-  wakeUpTimeMinute_   = 0;
-  pinMode(POT_ALARM_CLOCK_PIN, INPUT); // potentiometer
-
+  // light sensor
+  pinMode(LIGHT_SENSOR_PIN, INPUT);
+  
   // backlight
-  pinMode(LIGHT_SENSOR_PIN, INPUT);     // light sensor
-  pinMode(BACKLIGHT_HOUR_PIN, OUTPUT);
-  pinMode(BACKLIGHT_MINUTE_PIN, OUTPUT);
-  pinMode(BACKLIGHT_ALARM_PIN, OUTPUT);
+  hourLed_       = OneLed(BACKLIGHT_HOUR_PIN, 255);
+  hourLed_.setBlink(1024, 512);
+  minuteLed_     = OneLed(BACKLIGHT_MINUTE_PIN, 255);
+  minuteLed_.setBlink(1024, 512);
+  alarmClockLed_ = OneLed(BACKLIGHT_ALARM_CLOCK_PIN, 255);
   
   // indicator
   
   // RTC
   rtc_ = InternalRtc();
   
+  // alarm clock 
+  isAlarmClockEnable_ = false;
+  isWakeUp_           = false;
+  wakeUpTimeHour_     = 0;
+  wakeUpTimeMinute_   = 0;
+  pinMode(POT_ALARM_CLOCK_PIN, INPUT); // potentiometer
+  
   // alarm signal
-  alarmSignal_ = Beeper(9);
+  alarmSignal_ = Beeper(WAKEUP_SIGNAL_PIN);
   
   state_ = STATE_DEFAULT;
 }
@@ -57,22 +65,23 @@ void Clock::loop()
   modeButton_.tick();
   superButton_.tick();
   
-  // alarm clock
-  alarmClockTick();
-  printWakeUpTime();
-  
   // light sensor
+  
   // backlight
+  backlightProcess(true);
+
   // indicator
   
   // RTC
   rtc_.tick();
   printCurrentTime();
   
+  // alarm clock
+  alarmClockTick();
+  printWakeUpTime();
+  
   // alarm signal
-  alarmSignal_.play(isWakeUp_);
-  
-  
+  alarmSignal_.play(isWakeUp_);  
 }
 
 void Clock::alarmClockTick()
@@ -83,9 +92,33 @@ void Clock::alarmClockTick()
   wakeUpTimeMinute_  = (value % (1023 / 24)) * 60 / (1023 / 24);
 }
 
-void Clock::backlightProcess()
-{
- 
+void Clock::backlightProcess(bool isLight)
+{ 
+  // hour and minutes
+  switch(state_)
+  {
+    case STATE_DEFAULT:
+    hourLed_.setEnable(isLight);
+    minuteLed_.setEnable(isLight);
+    break;
+    
+    case STATE_SET_HOUR:
+    hourLed_.blink();
+    minuteLed_.setEnable(isLight);
+    break;
+    
+    case STATE_SET_MIN:
+    hourLed_.setEnable(isLight);
+    minuteLed_.blink();
+    break;
+  }
+  
+  // alarm clock
+  alarmClockLed_.setEnable(isAlarmClockEnable_ && !isLight);
+  
+  hourLed_.process();
+  minuteLed_.process();
+  alarmClockLed_.process();
 }
 
 void Clock::printCurrentTime()
