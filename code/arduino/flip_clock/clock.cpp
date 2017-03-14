@@ -5,15 +5,8 @@ OneButton Clock::plusButton_;
 
 OneLed Clock::hourLed_;
 OneLed Clock::minuteLed_;
-OneLed Clock::alarmClockLed_;
 
 InternalRtc Clock::rtc_;
-Beeper      Clock::alarmSignal_;
-
-bool Clock::isAlarmClockEnable_;
-bool Clock::isWakeUp_;
-uint8_t Clock::wakeUpTimeHour_;
-uint8_t Clock::wakeUpTimeMinute_;
 
 uint8_t Clock::state_;
 
@@ -39,24 +32,13 @@ void Clock::setup()
   hourLed_.setBlink(1024, 512);
   minuteLed_     = OneLed(BACKLIGHT_MINUTE_PIN, 255);
   minuteLed_.setBlink(1024, 512);
-  alarmClockLed_ = OneLed(BACKLIGHT_ALARM_CLOCK_PIN, 255);
   
   // indicator
   
   // RTC
   rtc_ = InternalRtc();
   
-  // alarm clock
-  pinMode(POT_ALARM_CLOCK_PIN, INPUT); // potentiometer
-  
-  isAlarmClockEnable_ = false;
-  isWakeUp_           = false;
-  wakeUpTimeHour_     = 0;
-  wakeUpTimeMinute_   = 0;
-
-  // alarm signal
-  alarmSignal_ = Beeper(WAKEUP_SIGNAL_PIN);
-  
+  // state
   state_ = STATE_DEFAULT;
 }
 
@@ -77,25 +59,6 @@ void Clock::loop()
   // RTC
   rtc_.tick();
   printCurrentTime();
-  
-  // alarm clock
-  alarmClockTick();
-//  printWakeUpTime();
-  
-  // alarm signal
-  alarmSignal_.play(isAlarmClockEnable_ && isWakeUp_);  
-}
-
-void Clock::alarmClockTick()
-{
-  
-  // read alarm clock time
-  uint16_t value = readAnalogMeanValue(POT_ALARM_CLOCK_PIN, 5);
-  wakeUpTimeHour_ = value / (1023 / 12);
-  wakeUpTimeMinute_  = (value % (1023 / 12)) * 60 / (1023 / 12);
-  
-//  if((wakeUpTimeHour_ * 60 + wakeUpTimeMinute_) -
-//     (rtc_.minute
 }
 
 uint16_t Clock::readAnalogMeanValue(uint8_t pin, uint8_t n)
@@ -144,12 +107,8 @@ void Clock::backlightProcess(bool isLight)
     break;
   }
   
-  // alarm clock
-  alarmClockLed_.setEnable(isAlarmClockEnable_ && !isLight);
-  
   hourLed_.process();
   minuteLed_.process();
-  alarmClockLed_.process();
 }
 
 void Clock::printCurrentTime()
@@ -166,22 +125,6 @@ void Clock::printCurrentTime()
     Serial.print(" : ");
     Serial.println(rtc_.minute());
   }
-}
-
-void Clock::printWakeUpTime()
-{
-  static uint8_t hour = 0;
-  static uint8_t minute = 0;
-  
-//  if(abs((hour * 60 + minute) - (wakeUpTimeHour_ * 60 + wakeUpTimeMinute_)) > WAKEUP_EPSILON){
-    hour   = wakeUpTimeHour_;
-    minute = wakeUpTimeMinute_;
-    
-    Serial.print("WakeUp time: ");
-    Serial.print(wakeUpTimeHour_);
-    Serial.print(" : ");
-    Serial.println(wakeUpTimeMinute_);
-//  }
 }
 
 void Clock::modeCallback()
