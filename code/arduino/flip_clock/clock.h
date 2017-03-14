@@ -17,8 +17,9 @@ class Clock
   
   private:
   static void modeCallback();
-  static void superCallback();
+  static void plusCallback();
   static void alarmClockTick();
+  static uint16_t readAnalogMeanValue(uint8_t pin, uint8_t n);
   static bool getIsLight();
   static void backlightProcess(bool isLight);
   static void printCurrentTime();
@@ -26,7 +27,7 @@ class Clock
   
   // buttons
   static OneButton modeButton_;
-  static OneButton superButton_;
+  static OneButton plusButton_;
   
   // light sensor
   

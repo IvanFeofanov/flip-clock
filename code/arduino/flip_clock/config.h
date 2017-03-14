@@ -9,11 +9,11 @@
 // buttons
 #define BUTTON_ACTIVE_LOW      (LOW) // состояние на пине когда кнопка не нажата
 #define MODE_BUTTON_PIN        (2)
-#define SUPER_BUTTON_PIN       (4)
+#define PLUS_BUTTON_PIN        (4)
 
-// potentiometr
+// alarm clock
 #define POT_ALARM_CLOCK_PIN    (A0) // аналоговый пин к которому подключен потенциометр настройки будильника
-#define WAKEUP_EPSILON         (10)  // точность(в минутах) с которой устанавливается время подъема
+#define WAKEUP_EPSILON         (10) // точность(в минутах) с которой устанавливается время подъема
 
 // wakeup signal
 #define WAKEUP_SIGNAL_PIN      (9)  // цифровой пин к которому подключен динамик

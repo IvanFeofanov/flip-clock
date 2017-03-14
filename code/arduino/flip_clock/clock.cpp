@@ -1,7 +1,7 @@
 #include "clock.h"
 
 OneButton Clock::modeButton_;
-OneButton Clock::superButton_;
+OneButton Clock::plusButton_;
 
 OneLed Clock::hourLed_;
 OneLed Clock::minuteLed_;
@@ -28,8 +28,8 @@ void Clock::setup()
   //buttons
   modeButton_   = OneButton(MODE_BUTTON_PIN, BUTTON_ACTIVE_LOW);
   modeButton_.attachClick(modeCallback);
-  superButton_  = OneButton(SUPER_BUTTON_PIN, BUTTON_ACTIVE_LOW);
-  superButton_.attachClick(superCallback);
+  plusButton_  = OneButton(PLUS_BUTTON_PIN, BUTTON_ACTIVE_LOW);
+  plusButton_.attachClick(plusCallback);
   
   // light sensor
   pinMode(LIGHT_SENSOR_PIN, INPUT);
@@ -46,13 +46,14 @@ void Clock::setup()
   // RTC
   rtc_ = InternalRtc();
   
-  // alarm clock 
+  // alarm clock
+  pinMode(POT_ALARM_CLOCK_PIN, INPUT); // potentiometer
+  
   isAlarmClockEnable_ = false;
   isWakeUp_           = false;
   wakeUpTimeHour_     = 0;
   wakeUpTimeMinute_   = 0;
-  pinMode(POT_ALARM_CLOCK_PIN, INPUT); // potentiometer
-  
+
   // alarm signal
   alarmSignal_ = Beeper(WAKEUP_SIGNAL_PIN);
   
@@ -63,7 +64,7 @@ void Clock::loop()
 {
   // buttons
   modeButton_.tick();
-  superButton_.tick();
+  plusButton_.tick();
   
   // light sensor
   bool isLight = getIsLight();
@@ -82,15 +83,29 @@ void Clock::loop()
 //  printWakeUpTime();
   
   // alarm signal
-  alarmSignal_.play(isWakeUp_);  
+  alarmSignal_.play(isAlarmClockEnable_ && isWakeUp_);  
 }
 
 void Clock::alarmClockTick()
 {
+  
   // read alarm clock time
-  uint16_t value = analogRead(POT_ALARM_CLOCK_PIN);
-  wakeUpTimeHour_ = value / (1023 / 24);
-  wakeUpTimeMinute_  = (value % (1023 / 24)) * 60 / (1023 / 24);
+  uint16_t value = readAnalogMeanValue(POT_ALARM_CLOCK_PIN, 5);
+  wakeUpTimeHour_ = value / (1023 / 12);
+  wakeUpTimeMinute_  = (value % (1023 / 12)) * 60 / (1023 / 12);
+  
+//  if((wakeUpTimeHour_ * 60 + wakeUpTimeMinute_) -
+//     (rtc_.minute
+}
+
+uint16_t Clock::readAnalogMeanValue(uint8_t pin, uint8_t n)
+{
+  uint32_t value = 0;
+  for(int i = 0; i < n; i++){
+    value += analogRead(pin);
+  }
+  value /= n;
+  return value;
 }
 
 bool Clock::getIsLight()
@@ -114,17 +129,17 @@ void Clock::backlightProcess(bool isLight)
   switch(state_)
   {
     case STATE_DEFAULT:
-    hourLed_.setEnable(isLight);
-    minuteLed_.setEnable(isLight);
+    hourLed_.setEnable(!isLight);
+    minuteLed_.setEnable(!isLight);
     break;
     
     case STATE_SET_HOUR:
     hourLed_.blink();
-    minuteLed_.setEnable(isLight);
+    minuteLed_.setEnable(!isLight);
     break;
     
     case STATE_SET_MIN:
-    hourLed_.setEnable(isLight);
+    hourLed_.setEnable(!isLight);
     minuteLed_.blink();
     break;
   }
@@ -158,7 +173,7 @@ void Clock::printWakeUpTime()
   static uint8_t hour = 0;
   static uint8_t minute = 0;
   
-  if(abs((hour * 60 + minute) - (wakeUpTimeHour_ * 60 + wakeUpTimeMinute_)) > WAKEUP_EPSILON){
+//  if(abs((hour * 60 + minute) - (wakeUpTimeHour_ * 60 + wakeUpTimeMinute_)) > WAKEUP_EPSILON){
     hour   = wakeUpTimeHour_;
     minute = wakeUpTimeMinute_;
     
@@ -166,7 +181,7 @@ void Clock::printWakeUpTime()
     Serial.print(wakeUpTimeHour_);
     Serial.print(" : ");
     Serial.println(wakeUpTimeMinute_);
-  }
+//  }
 }
 
 void Clock::modeCallback()
@@ -178,7 +193,7 @@ void Clock::modeCallback()
   }
 }
 
-void Clock::superCallback()
+void Clock::plusCallback()
 {
   switch(state_)
   {
@@ -188,10 +203,6 @@ void Clock::superCallback()
     
     case STATE_SET_MIN:
     rtc_.setMinute(rtc_.minute() + 1);
-    break;
-    
-    default:
-    isWakeUp_ = false;
     break;
   }
 }
