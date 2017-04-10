@@ -6,7 +6,11 @@ OneButton Clock::plusButton_;
 OneLed Clock::hourLed_;
 OneLed Clock::minuteLed_;
 
+#ifdef USE_DS1307
+Ds1307Rtc Clock::rtc_;
+#else
 InternalRtc Clock::rtc_;
+#endif
 
 uint8_t Clock::state_;
 
@@ -36,7 +40,11 @@ void Clock::setup()
   // indicator
   
   // RTC
+#ifdef USE_DS1307
+  rtc_ = Ds1307Rtc();
+#else
   rtc_ = InternalRtc();
+#endif
   
   // state
   state_ = STATE_DEFAULT;

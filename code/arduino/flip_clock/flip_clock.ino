@@ -1,3 +1,5 @@
+#include <Wire.h>
+
 #include "clock.h"
 
 void setup()

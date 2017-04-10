@@ -18,4 +18,7 @@
 #define BACKLIGHT_HOUR_PIN         (3)
 #define BACKLIGHT_MINUTE_PIN       (5)
 
+// rtc
+#define USE_DS1307
+
 #endif

@@ -7,6 +7,7 @@
 #include "OneButton.h"
 #include "one_led.h"
 #include "internal_rtc.h"
+#include "ds1307_rtc.h"
 
 class Clock
 {
@@ -35,8 +36,12 @@ class Clock
   // indicator
   
   // RTC
+#ifdef USE_DS1307
+  static Ds1307Rtc  rtc_;
+#else
   static InternalRtc rtc_; 
-  
+#endif
+
   // states
   static uint8_t state_;
   enum{
